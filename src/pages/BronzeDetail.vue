@@ -8,84 +8,71 @@ const goBack = () => {
     router.push('/')
 }
 
-// Bronze ware collection
-const bronzes = ref([
-    {
-        id: 1,
-        name: '商代兽面纹鼎',
-        dynasty: '商代晚期',
-        year: '公元前1300-1046年',
-        description: '此鼎立耳，深腹，三柱足。腹部饰兽面纹，云雷纹衬地，纹饰精美。铸工精湛，保存完好，是商代青铜礼器的代表作。',
-        size: '高24cm 口径18cm',
-        provenance: '安阳殷墟出土',
-        price: '¥ 8,800,000',
-        featured: true,
-        imageGradient: 'from-cyan-900/50 to-blue-900/50'
-    },
-    {
-        id: 2,
-        name: '西周毛公鼎',
-        dynasty: '西周晚期',
-        year: '公元前9世纪',
-        description: '毛公鼎是西周青铜器的代表作，腹内铸有铭文499字，是现存铭文最长的青铜器。记述周宣王告诫毛公之事，书法精美，史料价值极高。',
-        size: '高53.8cm 口径47cm',
-        provenance: '陕西岐山出土',
-        price: '¥ 12,000,000',
-        featured: true,
-        imageGradient: 'from-blue-900/50 to-indigo-900/50'
-    },
-    {
-        id: 3,
-        name: '商代四羊方尊',
-        dynasty: '商代晚期',
-        year: '公元前1300-1046年',
-        description: '四羊方尊是商代青铜方尊的精品。四角各铸一羊，羊首突出，羊身饰精细纹饰。造型雄奇，工艺精湛，是中国青铜艺术的瑰宝。',
-        size: '高58.3cm 口径52.4cm',
-        provenance: '湖南宁乡出土',
-        price: '¥ 6,800,000',
-        featured: true,
-        imageGradient: 'from-teal-900/50 to-cyan-900/50'
-    },
-    {
-        id: 4,
-        name: '战国错金银铜牛灯',
-        dynasty: '战国',
-        year: '公元前475-221年',
-        description: '此灯整体作牛形，牛背托灯盘，通体错金银装饰，纹饰华丽。设计巧妙，既实用又美观，是战国青铜工艺的杰出代表。',
-        size: '高17cm 长24cm',
-        provenance: '河北平山出土',
-        price: '¥ 2,800,000',
-        featured: false,
-        imageGradient: 'from-yellow-900/40 to-amber-900/40'
-    },
-    {
-        id: 5,
-        name: '西周利簋',
-        dynasty: '西周早期',
-        year: '公元前1046年',
-        description: '利簋腹内底部铸有铭文32字，记载武王伐纣这一重大历史事件，是印证商周交替的确凿史料，具有极高的历史价值。',
-        size: '高28cm 口径22cm',
-        provenance: '陕西临潼出土',
-        price: '¥ 4,200,000',
-        featured: false,
-        imageGradient: 'from-slate-800/50 to-gray-900/50'
-    },
-    {
-        id: 6,
-        name: '商代妇好鸮尊',
-        dynasty: '商代晚期',
-        year: '公元前1300-1046年',
-        description: '妇好鸮尊出土于妇好墓，整体作鸮形，鸮首高昂，双翅并拢，尾羽下垂。器身饰精细纹饰，造型生动，是商代青铜艺术精品。',
-        size: '高45.9cm 口径16.4cm',
-        provenance: '河南安阳妇好墓',
-        price: '¥ 5,600,000',
-        featured: false,
-        imageGradient: 'from-stone-700/50 to-stone-800/50'
+// 加载状态
+const loading = ref(false)
+// 错误信息
+const error = ref('')
+// 青铜器藏品列表
+const bronzes = ref([])
+
+/**
+ * 从后端API获取青铜器藏品列表
+ */
+const getBronzes = async () => {
+    loading.value = true
+    error.value = ''
+    try {
+        // 调用后端API获取青铜器数据
+        const response = await fetch('http://localhost:3003/api/bronze')
+        
+        // 检查响应状态
+        if (!response.ok) {
+            throw new Error(`HTTP错误！状态码：${response.status}`)
+        }
+        
+        const data = await response.json()
+        // 将返回的数据赋值给bronzes
+        bronzes.value = data
+    } catch (errorMsg) {
+        console.error('获取青铜器列表失败:', errorMsg)
+        // 设置错误信息
+        error.value = `获取数据失败：${errorMsg.message}`
+        // 如果API请求失败，使用mock数据作为备用
+        bronzes.value = [
+            {
+                id: 1,
+                name: '商代兽面纹鼎',
+                dynasty: '商代晚期',
+                year: '公元前1300-1046年',
+                description: '此鼎立耳，深腹，三柱足。腹部饰兽面纹，云雷纹衬地，纹饰精美。铸工精湛，保存完好，是商代青铜礼器的代表作。',
+                size: '高24cm 口径18cm',
+                provenance: '安阳殷墟出土',
+                price: '¥ 8,800,000',
+                featured: true,
+                imageGradient: 'from-cyan-900/50 to-blue-900/50'
+            },
+            {
+                id: 2,
+                name: '西周毛公鼎',
+                dynasty: '西周晚期',
+                year: '公元前9世纪',
+                description: '毛公鼎是西周青铜器的代表作，腹内铸有铭文499字，是现存铭文最长的青铜器。记述周宣王告诫毛公之事，书法精美，史料价值极高。',
+                size: '高53.8cm 口径47cm',
+                provenance: '陕西岐山出土',
+                price: '¥ 12,000,000',
+                featured: true,
+                imageGradient: 'from-blue-900/50 to-indigo-900/50'
+            }
+        ]
+    } finally {
+        loading.value = false
     }
-])
+}
 
 onMounted(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
+    // 组件挂载后调用API获取数据
+    getBronzes()
 })
 </script>
 
@@ -230,31 +217,64 @@ onMounted(() => {
             <div class="max-w-7xl mx-auto">
                 <h2 class="font-serif font-bold text-3xl text-stone-50 mb-8 text-center">馆藏珍品</h2>
 
-                <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <div
-                        v-for="bronze in bronzes"
-                        :key="bronze.id"
-                        class="product-card glass-card rounded-3xl overflow-hidden group cursor-pointer"
-                    >
-                        <div class="aspect-[4/3] bg-gradient-to-br relative overflow-hidden" :class="bronze.imageGradient">
-                            <div class="product-image absolute inset-0 flex items-center justify-center transition-transform duration-500">
-                                <svg class="w-20 h-20 text-gold-500/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                                </svg>
+                <!-- 加载状态 -->
+                <div v-if="loading" class="text-center py-20">
+                    <div class="inline-block w-16 h-16 border-4 border-t-4 border-gold-500 border-solid rounded-full animate-spin mb-4"></div>
+                    <p class="text-stone-400 text-lg">数据加载中，请稍候...</p>
+                </div>
+
+                <!-- 错误提示 -->
+                <div v-else-if="error" class="text-center py-20">
+                    <div class="inline-block w-16 h-16 text-red-500 mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-16 h-16">
+                            <path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <p class="text-stone-400 text-lg mb-4">{{ error }}</p>
+                    <button @click="getBronzes" class="bg-gradient-to-r from-gold-600 to-gold-500 hover:from-gold-700 hover:to-gold-600 text-stone-950 font-semibold px-6 py-2.5 rounded-full transition-all duration-300 cursor-pointer shadow-lg shadow-gold-500/30">
+                        重试
+                    </button>
+                </div>
+
+                <!-- 数据列表 -->
+                <div v-else>
+                    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div
+                            v-for="bronze in bronzes"
+                            :key="bronze.id"
+                            class="product-card glass-card rounded-3xl overflow-hidden group cursor-pointer"
+                        >
+                            <div class="aspect-[4/3] bg-gradient-to-br relative overflow-hidden" :class="bronze.imageGradient">
+                                <div class="product-image absolute inset-0 flex items-center justify-center transition-transform duration-500">
+                                    <svg class="w-20 h-20 text-gold-500/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                    </svg>
+                                </div>
+                                <div v-if="bronze.featured" class="absolute top-4 right-4 bg-gold-600 text-stone-950 text-xs font-bold px-3 py-1 rounded-full">
+                                    镇馆之宝
+                                </div>
                             </div>
-                            <div v-if="bronze.featured" class="absolute top-4 right-4 bg-gold-600 text-stone-950 text-xs font-bold px-3 py-1 rounded-full">
-                                镇馆之宝
+                            <div class="p-6">
+                                <div class="text-xs font-medium text-gold-400 tracking-widest mb-2">{{ bronze.dynasty }}</div>
+                                <h3 class="font-serif font-semibold text-xl text-stone-50 mb-2">{{ bronze.name }}</h3>
+                                <p class="text-stone-400 text-sm mb-4 line-clamp-2">{{ bronze.description }}</p>
+                                <div class="flex items-center justify-between text-sm">
+                                    <span class="text-stone-500">{{ bronze.size }}</span>
+                                    <span class="font-serif font-bold text-gold-500">{{ bronze.price }}</span>
+                                </div>
                             </div>
                         </div>
-                        <div class="p-6">
-                            <div class="text-xs font-medium text-gold-400 tracking-widest mb-2">{{ bronze.dynasty }}</div>
-                            <h3 class="font-serif font-semibold text-xl text-stone-50 mb-2">{{ bronze.name }}</h3>
-                            <p class="text-stone-400 text-sm mb-4 line-clamp-2">{{ bronze.description }}</p>
-                            <div class="flex items-center justify-between text-sm">
-                                <span class="text-stone-500">{{ bronze.size }}</span>
-                                <span class="font-serif font-bold text-gold-500">{{ bronze.price }}</span>
-                            </div>
+                    </div>
+
+                    <!-- 空数据提示 -->
+                    <div v-if="bronzes.length === 0" class="text-center py-20">
+                        <div class="inline-block w-16 h-16 text-stone-500 mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-16 h-16">
+                                <path d="M19.5 21a3 3 0 003-3V9a3 3 0 00-3-3h-15a3 3 0 00-3 3v9a3 3 0 003 3h15zM1.5 10.5v9a1.5 1.5 0 001.5 1.5h15a1.5 1.5 0 001.5-1.5v-9a1.5 1.5 0 00-1.5-1.5h-15A1.5 1.5 0 001.5 10.5z" />
+                                <path fill-rule="evenodd" d="M3 16.5a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5A.75.75 0 013 16.5zm0-6a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5a.75.75 0 01-.75-.75zm0-6a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5A.75.75 0 013 4.5zm5.25 12a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5a.75.75 0 01-.75-.75zm0-6a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5a.75.75 0 01-.75-.75zm0-6a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5a.75.75 0 01-.75-.75zm5.25 12a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5a.75.75 0 01-.75-.75zm0-6a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5a.75.75 0 01-.75-.75zm0-6a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5a.75.75 0 01-.75-.75z" clip-rule="evenodd" />
+                            </svg>
                         </div>
+                        <p class="text-stone-400 text-lg">暂无藏品数据</p>
                     </div>
                 </div>
             </div>

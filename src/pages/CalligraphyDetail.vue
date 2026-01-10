@@ -8,84 +8,71 @@ const goBack = () => {
     router.push('/')
 }
 
-// Ancient calligraphy and painting collection
-const artworks = ref([
-    {
-        id: 1,
-        name: '宋徽宗瑞鹤图卷',
-        dynasty: '北宋',
-        year: '公元1112年',
-        description: '宋徽宗赵佶亲笔绘制，描绘群鹤盘旋宫殿之上，祥云缭绕，寓意吉祥。笔墨精细，色彩绚丽，是宋代院体画的巅峰之作，体现"皇帝艺术"的独特魅力。',
-        size: '纵51cm 横138.2cm',
-        provenance: '清宫旧藏',
-        price: '¥ 8,800,000',
-        featured: true,
-        imageGradient: 'from-stone-700/50 to-stone-800/50'
-    },
-    {
-        id: 2,
-        name: '黄庭坚松风阁诗卷',
-        dynasty: '北宋',
-        year: '公元1102年',
-        description: '黄庭坚行书代表作，笔势纵横，结体奇险，是"宋四家"之一黄庭坚晚年精品。用笔沉着痛快，变化多端，充分体现其"字中有笔，如禅家句中有眼"的书法理念。',
-        size: '纵32.8cm 横219.2cm',
-        provenance: '传世有序',
-        price: '¥ 3,200,000',
-        featured: true,
-        imageGradient: 'from-amber-900/40 to-orange-900/40'
-    },
-    {
-        id: 3,
-        name: '王羲之兰亭序拓本',
-        dynasty: '东晋（唐摹）',
-        year: '公元353年（唐摹本）',
-        description: '王羲之《兰亭序》被誉为"天下第一行书"，原作已佚。此为唐代摹本，笔法精妙，字形妍美，虽为摹本，仍可见右军书法之神采，是研究晋代书法的珍贵资料。',
-        size: '纵24.5cm 横69.9cm',
-        provenance: '历代名家递藏',
-        price: '¥ 5,600,000',
-        featured: true,
-        imageGradient: 'from-yellow-900/40 to-amber-900/40'
-    },
-    {
-        id: 4,
-        name: '唐寅庐山观瀑图轴',
-        dynasty: '明代',
-        year: '公元1500年',
-        description: '唐寅（伯虎）山水画精品，描绘庐山瀑布之壮观景象。笔墨苍劲，构图奇巧，诗书画印完美结合，是吴门画派代表作品，体现明代文人画的艺术水准。',
-        size: '纵150cm 横80cm',
-        provenance: '苏州私家旧藏',
-        price: '¥ 1,680,000',
-        featured: false,
-        imageGradient: 'from-slate-800/50 to-gray-900/50'
-    },
-    {
-        id: 5,
-        name: '八大山人鱼鸭图卷',
-        dynasty: '清代',
-        year: '公元1685年',
-        description: '八大山人朱耷是明皇室后裔，亡国之痛使其画风孤傲冷峻。此图绘鱼鸭数只，笔墨简练，造型奇特，体现"白眼看人"的独特风格，是清代写意画的杰作。',
-        size: '纵30cm 横200cm',
-        provenance: '江西名门旧藏',
-        price: '¥ 2,200,000',
-        featured: false,
-        imageGradient: 'from-gray-800/50 to-zinc-900/50'
-    },
-    {
-        id: 6,
-        name: '郑板桥竹石图轴',
-        dynasty: '清代',
-        year: '公元1750年',
-        description: '郑板桥以"三绝"（诗书画）闻名，此幅竹石图竹叶疏密有致，瘦石挺立，题诗意味深长。书法隶楷参半，自创"六分半书"，是扬州八怪的代表作品。',
-        size: '纵130cm 横70cm',
-        provenance: '江南藏家旧藏',
-        price: '¥ 880,000',
-        featured: false,
-        imageGradient: 'from-emerald-900/40 to-green-900/40'
+// 加载状态
+const loading = ref(false)
+// 错误信息
+const error = ref('')
+// 古字画藏品列表
+const artworks = ref([])
+
+/**
+ * 从后端API获取古字画藏品列表
+ */
+const getArtworks = async () => {
+    loading.value = true
+    error.value = ''
+    try {
+        // 调用后端API获取古字画数据
+        const response = await fetch('http://localhost:3003/api/calligraphy')
+        
+        // 检查响应状态
+        if (!response.ok) {
+            throw new Error(`HTTP错误！状态码：${response.status}`)
+        }
+        
+        const data = await response.json()
+        // 将返回的数据赋值给artworks
+        artworks.value = data
+    } catch (errorMsg) {
+        console.error('获取古字画列表失败:', errorMsg)
+        // 设置错误信息
+        error.value = `获取数据失败：${errorMsg.message}`
+        // 如果API请求失败，使用mock数据作为备用
+        artworks.value = [
+            {
+                id: 1,
+                name: '宋徽宗瑞鹤图卷',
+                dynasty: '北宋',
+                year: '公元1112年',
+                description: '宋徽宗赵佶亲笔绘制，描绘群鹤盘旋宫殿之上，祥云缭绕，寓意吉祥。笔墨精细，色彩绚丽，是宋代院体画的巅峰之作，体现"皇帝艺术"的独特魅力。',
+                size: '纵51cm 横138.2cm',
+                provenance: '清宫旧藏',
+                price: '¥ 8,800,000',
+                featured: true,
+                imageGradient: 'from-stone-700/50 to-stone-800/50'
+            },
+            {
+                id: 2,
+                name: '黄庭坚松风阁诗卷',
+                dynasty: '北宋',
+                year: '公元1102年',
+                description: '黄庭坚行书代表作，笔势纵横，结体奇险，是"宋四家"之一黄庭坚晚年精品。用笔沉着痛快，变化多端，充分体现其"字中有笔，如禅家句中有眼"的书法理念。',
+                size: '纵32.8cm 横219.2cm',
+                provenance: '传世有序',
+                price: '¥ 3,200,000',
+                featured: true,
+                imageGradient: 'from-amber-900/40 to-orange-900/40'
+            }
+        ]
+    } finally {
+        loading.value = false
     }
-])
+}
 
 onMounted(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
+    // 组件挂载后调用API获取数据
+    getArtworks()
 })
 </script>
 
@@ -232,31 +219,64 @@ onMounted(() => {
             <div class="max-w-7xl mx-auto">
                 <h2 class="font-serif font-bold text-3xl text-stone-50 mb-8 text-center">馆藏珍品</h2>
 
-                <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <div
-                        v-for="artwork in artworks"
-                        :key="artwork.id"
-                        class="product-card glass-card rounded-3xl overflow-hidden group cursor-pointer"
-                    >
-                        <div class="aspect-[4/3] bg-gradient-to-br relative overflow-hidden" :class="artwork.imageGradient">
-                            <div class="product-image absolute inset-0 flex items-center justify-center transition-transform duration-500">
-                                <svg class="w-20 h-20 text-gold-500/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                                </svg>
+                <!-- 加载状态 -->
+                <div v-if="loading" class="text-center py-20">
+                    <div class="inline-block w-16 h-16 border-4 border-t-4 border-gold-500 border-solid rounded-full animate-spin mb-4"></div>
+                    <p class="text-stone-400 text-lg">数据加载中，请稍候...</p>
+                </div>
+
+                <!-- 错误提示 -->
+                <div v-else-if="error" class="text-center py-20">
+                    <div class="inline-block w-16 h-16 text-red-500 mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-16 h-16">
+                            <path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <p class="text-stone-400 text-lg mb-4">{{ error }}</p>
+                    <button @click="getArtworks" class="bg-gradient-to-r from-gold-600 to-gold-500 hover:from-gold-700 hover:to-gold-600 text-stone-950 font-semibold px-6 py-2.5 rounded-full transition-all duration-300 cursor-pointer shadow-lg shadow-gold-500/30">
+                        重试
+                    </button>
+                </div>
+
+                <!-- 数据列表 -->
+                <div v-else>
+                    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div
+                            v-for="artwork in artworks"
+                            :key="artwork.id"
+                            class="product-card glass-card rounded-3xl overflow-hidden group cursor-pointer"
+                        >
+                            <div class="aspect-[4/3] bg-gradient-to-br relative overflow-hidden" :class="artwork.imageGradient">
+                                <div class="product-image absolute inset-0 flex items-center justify-center transition-transform duration-500">
+                                    <svg class="w-20 h-20 text-gold-500/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                    </svg>
+                                </div>
+                                <div v-if="artwork.featured" class="absolute top-4 right-4 bg-gold-600 text-stone-950 text-xs font-bold px-3 py-1 rounded-full">
+                                    镇馆之宝
+                                </div>
                             </div>
-                            <div v-if="artwork.featured" class="absolute top-4 right-4 bg-gold-600 text-stone-950 text-xs font-bold px-3 py-1 rounded-full">
-                                镇馆之宝
+                            <div class="p-6">
+                                <div class="text-xs font-medium text-gold-400 tracking-widest mb-2">{{ artwork.dynasty }}</div>
+                                <h3 class="font-serif font-semibold text-xl text-stone-50 mb-2">{{ artwork.name }}</h3>
+                                <p class="text-stone-400 text-sm mb-4 line-clamp-2">{{ artwork.description }}</p>
+                                <div class="flex items-center justify-between text-sm">
+                                    <span class="text-stone-500">{{ artwork.size }}</span>
+                                    <span class="font-serif font-bold text-gold-500">{{ artwork.price }}</span>
+                                </div>
                             </div>
                         </div>
-                        <div class="p-6">
-                            <div class="text-xs font-medium text-gold-400 tracking-widest mb-2">{{ artwork.dynasty }}</div>
-                            <h3 class="font-serif font-semibold text-xl text-stone-50 mb-2">{{ artwork.name }}</h3>
-                            <p class="text-stone-400 text-sm mb-4 line-clamp-2">{{ artwork.description }}</p>
-                            <div class="flex items-center justify-between text-sm">
-                                <span class="text-stone-500">{{ artwork.size }}</span>
-                                <span class="font-serif font-bold text-gold-500">{{ artwork.price }}</span>
-                            </div>
+                    </div>
+
+                    <!-- 空数据提示 -->
+                    <div v-if="artworks.length === 0" class="text-center py-20">
+                        <div class="inline-block w-16 h-16 text-stone-500 mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-16 h-16">
+                                <path d="M19.5 21a3 3 0 003-3V9a3 3 0 00-3-3h-15a3 3 0 00-3 3v9a3 3 0 003 3h15zM1.5 10.5v9a1.5 1.5 0 001.5 1.5h15a1.5 1.5 0 001.5-1.5v-9a1.5 1.5 0 00-1.5-1.5h-15A1.5 1.5 0 001.5 10.5z" />
+                                <path fill-rule="evenodd" d="M3 16.5a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5A.75.75 0 013 16.5zm0-6a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5a.75.75 0 01-.75-.75zm0-6a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5A.75.75 0 013 4.5zm5.25 12a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5a.75.75 0 01-.75-.75zm0-6a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5a.75.75 0 01-.75-.75zm0-6a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5a.75.75 0 01-.75-.75zm5.25 12a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5a.75.75 0 01-.75-.75zm0-6a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5a.75.75 0 01-.75-.75zm0-6a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5a.75.75 0 01-.75-.75z" clip-rule="evenodd" />
+                            </svg>
                         </div>
+                        <p class="text-stone-400 text-lg">暂无藏品数据</p>
                     </div>
                 </div>
             </div>

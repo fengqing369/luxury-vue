@@ -8,84 +8,71 @@ const goBack = () => {
     router.push('/')
 }
 
-// High ancient ceramics collection
-const ceramics = ref([
-    {
-        id: 1,
-        name: '唐三彩骆驼载乐俑',
-        dynasty: '唐代',
-        year: '公元618-907年',
-        description: '此件唐三彩骆驼载乐俑，骆驼昂首嘶鸣，背负五位乐师，神态各异。釉色绚丽，黄、绿、白三色交相辉映，是盛唐丝绸之路文化的完美见证。',
-        size: '高58cm 长42cm',
-        provenance: '西安出土',
-        price: '¥ 2,800,000',
-        featured: true,
-        imageGradient: 'from-amber-900/50 to-orange-900/50'
-    },
-    {
-        id: 2,
-        name: '宋汝窑天青釉盘',
-        dynasty: '宋代',
-        year: '公元960-1279年',
-        description: '汝窑为宋代五大名窑之首，"天青为贵，粉青为尚，月白第一，天青未均最佳"。此盘釉色纯正，开片自然，是汝窑精品之作。',
-        size: '直径17.5cm',
-        provenance: '传世旧藏',
-        price: '¥ 8,800,000',
-        featured: true,
-        imageGradient: 'from-sky-900/50 to-cyan-900/50'
-    },
-    {
-        id: 3,
-        name: '元青花鱼藻纹罐',
-        dynasty: '元代',
-        year: '公元1271-1368年',
-        description: '元青花以"纹饰繁密、层次丰富、笔意流畅"著称。此罐绘鱼藻纹，青花发色浓艳，铁锈斑明显，是元青花典型器。',
-        size: '高28cm 口径21cm',
-        provenance: '景德镇窑',
-        price: '¥ 5,200,000',
-        featured: false,
-        imageGradient: 'from-blue-900/50 to-indigo-900/50'
-    },
-    {
-        id: 4,
-        name: '明永乐青花缠枝莲纹碗',
-        dynasty: '明代',
-        year: '公元1403-1424年',
-        description: '永乐青花"其用料浓厚，式样精妙，写生描意，无不通真"。此碗青花发色浓艳，纹饰流畅，为永乐官窑精品。',
-        size: '直径16cm',
-        provenance: '景德镇御窑',
-        price: '¥ 1,680,000',
-        featured: false,
-        imageGradient: 'from-cyan-900/50 to-blue-900/50'
-    },
-    {
-        id: 5,
-        name: '清康熙釉里红龙纹梅瓶',
-        dynasty: '清代',
-        year: '公元1662-1722年',
-        description: '釉里红创烧于元代，康熙时期达到顶峰。此瓶红色纯正，龙纹威武，是康熙釉里红的代表作。',
-        size: '高35cm',
-        provenance: '景德镇窑',
-        price: '¥ 980,000',
-        featured: false,
-        imageGradient: 'from-red-900/50 to-rose-900/50'
-    },
-    {
-        id: 6,
-        name: '宋定窑白釉刻花莲纹碗',
-        dynasty: '宋代',
-        year: '公元960-1279年',
-        description: '定窑以白瓷著称，"白如玉、薄如纸、声如磬"。此碗釉色温润，刻花精美，有"定窑花瓷瓯，颜色天下白"之美誉。',
-        size: '直径19cm',
-        provenance: '河北曲阳窑',
-        price: '¥ 680,000',
-        featured: false,
-        imageGradient: 'from-stone-300/30 to-stone-400/30'
+// 加载状态
+const loading = ref(false)
+// 错误信息
+const error = ref('')
+// 高古瓷藏品列表
+const ceramics = ref([])
+
+/**
+ * 从后端API获取高古瓷藏品列表
+ */
+const getCeramics = async () => {
+    loading.value = true
+    error.value = ''
+    try {
+        // 调用后端API获取高古瓷数据
+        const response = await fetch('http://localhost:3003/api/ceramics')
+        
+        // 检查响应状态
+        if (!response.ok) {
+            throw new Error(`HTTP错误！状态码：${response.status}`)
+        }
+        
+        const data = await response.json()
+        // 将返回的数据赋值给ceramics
+        ceramics.value = data
+    } catch (errorMsg) {
+        console.error('获取高古瓷列表失败:', errorMsg)
+        // 设置错误信息
+        error.value = `获取数据失败：${errorMsg.message}`
+        // 如果API请求失败，使用mock数据作为备用
+        ceramics.value = [
+            {
+                id: 1,
+                name: '唐三彩骆驼载乐俑',
+                dynasty: '唐代',
+                year: '公元618-907年',
+                description: '此件唐三彩骆驼载乐俑，骆驼昂首嘶鸣，背负五位乐师，神态各异。釉色绚丽，黄、绿、白三色交相辉映，是盛唐丝绸之路文化的完美见证。',
+                size: '高58cm 长42cm',
+                provenance: '西安出土',
+                price: '¥ 2,800,000',
+                featured: true,
+                imageGradient: 'from-amber-900/50 to-orange-900/50'
+            },
+            {
+                id: 2,
+                name: '宋汝窑天青釉盘',
+                dynasty: '宋代',
+                year: '公元960-1279年',
+                description: '汝窑为宋代五大名窑之首，"天青为贵，粉青为尚，月白第一，天青未均最佳"。此盘釉色纯正，开片自然，是汝窑精品之作。',
+                size: '直径17.5cm',
+                provenance: '传世旧藏',
+                price: '¥ 8,800,000',
+                featured: true,
+                imageGradient: 'from-sky-900/50 to-cyan-900/50'
+            }
+        ]
+    } finally {
+        loading.value = false
     }
-])
+}
 
 onMounted(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
+    // 组件挂载后调用API获取数据
+    getCeramics()
 })
 </script>
 
@@ -228,31 +215,64 @@ onMounted(() => {
             <div class="max-w-7xl mx-auto">
                 <h2 class="font-serif font-bold text-3xl text-stone-50 mb-8 text-center">馆藏珍品</h2>
 
-                <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <div
-                        v-for="ceramic in ceramics"
-                        :key="ceramic.id"
-                        class="product-card glass-card rounded-3xl overflow-hidden group cursor-pointer"
-                    >
-                        <div class="aspect-[4/3] bg-gradient-to-br relative overflow-hidden" :class="ceramic.imageGradient">
-                            <div class="product-image absolute inset-0 flex items-center justify-center transition-transform duration-500">
-                                <svg class="w-20 h-20 text-gold-500/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                                </svg>
+                <!-- 加载状态 -->
+                <div v-if="loading" class="text-center py-20">
+                    <div class="inline-block w-16 h-16 border-4 border-t-4 border-gold-500 border-solid rounded-full animate-spin mb-4"></div>
+                    <p class="text-stone-400 text-lg">数据加载中，请稍候...</p>
+                </div>
+
+                <!-- 错误提示 -->
+                <div v-else-if="error" class="text-center py-20">
+                    <div class="inline-block w-16 h-16 text-red-500 mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-16 h-16">
+                            <path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <p class="text-stone-400 text-lg mb-4">{{ error }}</p>
+                    <button @click="getCeramics" class="bg-gradient-to-r from-gold-600 to-gold-500 hover:from-gold-700 hover:to-gold-600 text-stone-950 font-semibold px-6 py-2.5 rounded-full transition-all duration-300 cursor-pointer shadow-lg shadow-gold-500/30">
+                        重试
+                    </button>
+                </div>
+
+                <!-- 数据列表 -->
+                <div v-else>
+                    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div
+                            v-for="ceramic in ceramics"
+                            :key="ceramic.id"
+                            class="product-card glass-card rounded-3xl overflow-hidden group cursor-pointer"
+                        >
+                            <div class="aspect-[4/3] bg-gradient-to-br relative overflow-hidden" :class="ceramic.imageGradient">
+                                <div class="product-image absolute inset-0 flex items-center justify-center transition-transform duration-500">
+                                    <svg class="w-20 h-20 text-gold-500/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                    </svg>
+                                </div>
+                                <div v-if="ceramic.featured" class="absolute top-4 right-4 bg-gold-600 text-stone-950 text-xs font-bold px-3 py-1 rounded-full">
+                                    镇馆之宝
+                                </div>
                             </div>
-                            <div v-if="ceramic.featured" class="absolute top-4 right-4 bg-gold-600 text-stone-950 text-xs font-bold px-3 py-1 rounded-full">
-                                镇馆之宝
+                            <div class="p-6">
+                                <div class="text-xs font-medium text-gold-400 tracking-widest mb-2">{{ ceramic.dynasty }}</div>
+                                <h3 class="font-serif font-semibold text-xl text-stone-50 mb-2">{{ ceramic.name }}</h3>
+                                <p class="text-stone-400 text-sm mb-4 line-clamp-2">{{ ceramic.description }}</p>
+                                <div class="flex items-center justify-between text-sm">
+                                    <span class="text-stone-500">{{ ceramic.size }}</span>
+                                    <span class="font-serif font-bold text-gold-500">{{ ceramic.price }}</span>
+                                </div>
                             </div>
                         </div>
-                        <div class="p-6">
-                            <div class="text-xs font-medium text-gold-400 tracking-widest mb-2">{{ ceramic.dynasty }}</div>
-                            <h3 class="font-serif font-semibold text-xl text-stone-50 mb-2">{{ ceramic.name }}</h3>
-                            <p class="text-stone-400 text-sm mb-4 line-clamp-2">{{ ceramic.description }}</p>
-                            <div class="flex items-center justify-between text-sm">
-                                <span class="text-stone-500">{{ ceramic.size }}</span>
-                                <span class="font-serif font-bold text-gold-500">{{ ceramic.price }}</span>
-                            </div>
+                    </div>
+
+                    <!-- 空数据提示 -->
+                    <div v-if="ceramics.length === 0" class="text-center py-20">
+                        <div class="inline-block w-16 h-16 text-stone-500 mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-16 h-16">
+                                <path d="M19.5 21a3 3 0 003-3V9a3 3 0 00-3-3h-15a3 3 0 00-3 3v9a3 3 0 003 3h15zM1.5 10.5v9a1.5 1.5 0 001.5 1.5h15a1.5 1.5 0 001.5-1.5v-9a1.5 1.5 0 00-1.5-1.5h-15A1.5 1.5 0 001.5 10.5z" />
+                                <path fill-rule="evenodd" d="M3 16.5a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5A.75.75 0 013 16.5zm0-6a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5a.75.75 0 01-.75-.75zm0-6a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5A.75.75 0 013 4.5zm5.25 12a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5a.75.75 0 01-.75-.75zm0-6a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5a.75.75 0 01-.75-.75zm0-6a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5a.75.75 0 01-.75-.75zm5.25 12a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5a.75.75 0 01-.75-.75zm0-6a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5a.75.75 0 01-.75-.75zm0-6a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5a.75.75 0 01-.75-.75z" clip-rule="evenodd" />
+                            </svg>
                         </div>
+                        <p class="text-stone-400 text-lg">暂无藏品数据</p>
                     </div>
                 </div>
             </div>
