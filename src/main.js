@@ -15,23 +15,25 @@ import ContactPage from './pages/ContactPage.vue'
 
 // Routes
 const routes = [
-    { path: '/', component: HomePage },
+    { path: '/before', component: HomePage },
     // 复数形式路由（主要使用）
-    { path: '/ceramics', component: CeramicDetail },
-    { path: '/jades', component: JadeDetail },
-    { path: '/bronzes', component: BronzeDetail },
-    { path: '/calligraphies', component: CalligraphyDetail },
+    { path: '/before/ceramics', component: CeramicDetail },
+    { path: '/before/jades', component: JadeDetail },
+    { path: '/before/bronzes', component: BronzeDetail },
+    { path: '/before/calligraphies', component: CalligraphyDetail },
     // 单数形式路由（重定向到复数形式，确保兼容性）
-    { path: '/ceramic', redirect: '/ceramics' },
-    { path: '/jade', redirect: '/jades' },
-    { path: '/bronze', redirect: '/bronzes' },
-    { path: '/calligraphy', redirect: '/calligraphies' },
+    { path: '/before/ceramic', redirect: '/before/ceramics' },
+    { path: '/before/jade', redirect: '/before/jades' },
+    { path: '/before/bronze', redirect: '/before/bronzes' },
+    { path: '/before/calligraphy', redirect: '/before/calligraphies' },
     // 新增页面路由
-    { path: '/story', component: StoryPage },
-    { path: '/services', component: ServicesPage },
-    { path: '/contact', component: ContactPage },
+    { path: '/before/story', component: StoryPage },
+    { path: '/before/services', component: ServicesPage },
+    { path: '/before/contact', component: ContactPage },
     // 详情页路由
-    { path: '/:type/:id', component: ItemDetail },
+    { path: '/before/:type/:id', component: ItemDetail },
+    // 重定向根路径到before前缀
+    { path: '/', redirect: '/before' },
 ]
 
 const router = createRouter({

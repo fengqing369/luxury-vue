@@ -23,39 +23,15 @@ const getCeramics = async () => {
     try {
         // 调用后端API获取高古瓷数据
         const data = await getCollectionItems('ceramics')
+        
         // 按id字段排序，确保图片按顺序显示
-        ceramics.value = (data || []).sort((a, b) => a.id - b.id)
+        ceramics.value = data.sort((a, b) => a.id - b.id)
     } catch (errorMsg) {
         console.error('获取高古瓷列表失败:', errorMsg)
         // 设置错误信息
         error.value = `获取数据失败：${errorMsg.message}`
-        // 如果API请求失败，使用mock数据作为备用
-        ceramics.value = [
-            {
-                id: 1,
-                name: '唐三彩骆驼载乐俑',
-                dynasty: '唐代',
-                year: '公元618-907年',
-                description: '此件唐三彩骆驼载乐俑，骆驼昂首嘶鸣，背负五位乐师，神态各异。釉色绚丽，黄、绿、白三色交相辉映，是盛唐丝绸之路文化的完美见证。',
-                size: '高58cm 长42cm',
-                provenance: '西安出土',
-                price: '¥ 2,800,000',
-                featured: true,
-                imageGradient: 'from-amber-900/50 to-orange-900/50'
-            },
-            {
-                id: 2,
-                name: '宋汝窑天青釉盘',
-                dynasty: '宋代',
-                year: '公元960-1279年',
-                description: '汝窑为宋代五大名窑之首，"天青为贵，粉青为尚，月白第一，天青未均最佳"。此盘釉色纯正，开片自然，是汝窑精品之作。',
-                size: '直径17.5cm',
-                provenance: '传世旧藏',
-                price: '¥ 8,800,000',
-                featured: true,
-                imageGradient: 'from-sky-900/50 to-cyan-900/50'
-            }
-        ]
+        // 清空数据列表
+        ceramics.value = []
     } finally {
         loading.value = false
     }
@@ -63,28 +39,13 @@ const getCeramics = async () => {
 
 // 返回首页
 const goBack = () => {
-    router.push('/')
+    router.push('/before')
 }
-
-// 设置轮询定时器，每5秒获取一次最新数据
-let pollingInterval = null
 
 onMounted(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
     // 组件挂载后调用API获取数据
     getCeramics()
-    
-    pollingInterval = setInterval(() => {
-        getCeramics()
-    }, 5000)
-})
-
-// 组件卸载时清除定时器
-onUnmounted(() => {
-    if (pollingInterval) {
-        clearInterval(pollingInterval)
-        pollingInterval = null
-    }
 })
 </script>
 
@@ -179,9 +140,9 @@ onUnmounted(() => {
         </template>
 
         <!-- 藏品列表内容 -->
-        <template #items="{ items }">
+        <template #items>
             <ProductCard 
-                v-for="item in items" 
+                v-for="item in ceramics" 
                 :key="item.id" 
                 :item="item" 
                 type="ceramics"

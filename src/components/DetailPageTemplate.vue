@@ -121,7 +121,7 @@ const retryLoading = () => {
         </section>
 
         <!-- Collection Grid -->
-        <section class="py-16 px-4 sm:px-6 lg:px-8 bg-stone-950">
+        <section class="py-16 px-4 sm:px-6 lg:px-8 bg-stone-900">
             <div class="max-w-7xl mx-auto">
                 <h2 class="font-serif font-bold text-3xl text-stone-50 mb-8 text-center">馆藏珍品</h2>
 

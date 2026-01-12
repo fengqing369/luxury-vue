@@ -23,39 +23,15 @@ const getBronzes = async () => {
     try {
         // 调用后端API获取青铜器数据
         const data = await getCollectionItems('bronzes')
+        
         // 按id字段排序，确保图片按顺序显示
-        bronzes.value = (data || []).sort((a, b) => a.id - b.id)
+        bronzes.value = data.sort((a, b) => a.id - b.id)
     } catch (errorMsg) {
         console.error('获取青铜器列表失败:', errorMsg)
         // 设置错误信息
         error.value = `获取数据失败：${errorMsg.message}`
-        // 如果API请求失败，使用mock数据作为备用
-        bronzes.value = [
-            {
-                id: 1,
-                name: '商代兽面纹鼎',
-                dynasty: '商代晚期',
-                year: '公元前1300-1046年',
-                description: '此鼎立耳，深腹，三柱足。腹部饰兽面纹，云雷纹衬地，纹饰精美。铸工精湛，保存完好，是商代青铜礼器的代表作。',
-                size: '高24cm 口径18cm',
-                provenance: '安阳殷墟出土',
-                price: '¥ 8,800,000',
-                featured: true,
-                imageGradient: 'from-cyan-900/50 to-blue-900/50'
-            },
-            {
-                id: 2,
-                name: '西周毛公鼎',
-                dynasty: '西周晚期',
-                year: '公元前9世纪',
-                description: '毛公鼎是西周青铜器的代表作，腹内铸有铭文499字，是现存铭文最长的青铜器。记述周宣王告诫毛公之事，书法精美，史料价值极高。',
-                size: '高53.8cm 口径47cm',
-                provenance: '陕西岐山出土',
-                price: '¥ 12,000,000',
-                featured: true,
-                imageGradient: 'from-blue-900/50 to-indigo-900/50'
-            }
-        ]
+        // 清空数据列表
+        bronzes.value = []
     } finally {
         loading.value = false
     }
@@ -63,28 +39,13 @@ const getBronzes = async () => {
 
 // 返回首页
 const goBack = () => {
-    router.push('/')
+    router.push('/before')
 }
-
-// 设置轮询定时器，每5秒获取一次最新数据
-let pollingInterval = null
 
 onMounted(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
     // 组件挂载后调用API获取数据
     getBronzes()
-    
-    pollingInterval = setInterval(() => {
-        getBronzes()
-    }, 5000)
-})
-
-// 组件卸载时清除定时器
-onUnmounted(() => {
-    if (pollingInterval) {
-        clearInterval(pollingInterval)
-        pollingInterval = null
-    }
 })
 </script>
 
@@ -181,9 +142,9 @@ onUnmounted(() => {
         </template>
 
         <!-- 藏品列表内容 -->
-        <template #items="{ items }">
+        <template #items>
             <ProductCard 
-                v-for="item in items" 
+                v-for="item in bronzes" 
                 :key="item.id" 
                 :item="item" 
                 type="bronzes"

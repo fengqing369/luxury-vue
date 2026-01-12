@@ -23,39 +23,15 @@ const getArtworks = async () => {
     try {
         // 调用后端API获取古字画数据
         const data = await getCollectionItems('calligraphies')
+        
         // 按id字段排序，确保图片按顺序显示
-        artworks.value = (data || []).sort((a, b) => a.id - b.id)
+        artworks.value = data.sort((a, b) => a.id - b.id)
     } catch (errorMsg) {
         console.error('获取古字画列表失败:', errorMsg)
         // 设置错误信息
         error.value = `获取数据失败：${errorMsg.message}`
-        // 如果API请求失败，使用mock数据作为备用
-        artworks.value = [
-            {
-                id: 1,
-                name: '宋徽宗瑞鹤图卷',
-                dynasty: '北宋',
-                year: '公元1112年',
-                description: '宋徽宗赵佶亲笔绘制，描绘群鹤盘旋宫殿之上，祥云缭绕，寓意吉祥。笔墨精细，色彩绚丽，是宋代院体画的巅峰之作，体现"皇帝艺术"的独特魅力。',
-                size: '纵51cm 横138.2cm',
-                provenance: '清宫旧藏',
-                price: `¥ ${Math.floor(Math.random() * 10000000 + 5000000).toLocaleString()}`,
-                featured: true,
-                imageGradient: 'from-stone-700/50 to-stone-800/50'
-            },
-            {
-                id: 2,
-                name: '黄庭坚松风阁诗卷',
-                dynasty: '北宋',
-                year: '公元1102年',
-                description: '黄庭坚行书代表作，笔势纵横，结体奇险，是"宋四家"之一黄庭坚晚年精品。用笔沉着痛快，变化多端，充分体现其"字中有笔，如禅家句中有眼"的书法理念。',
-                size: '纵32.8cm 横219.2cm',
-                provenance: '传世有序',
-                price: `¥ ${Math.floor(Math.random() * 5000000 + 2000000).toLocaleString()}`,
-                featured: true,
-                imageGradient: 'from-amber-900/40 to-orange-900/40'
-            }
-        ]
+        // 清空数据列表
+        artworks.value = []
     } finally {
         loading.value = false
     }
@@ -63,28 +39,13 @@ const getArtworks = async () => {
 
 // 返回首页
 const goBack = () => {
-    router.push('/')
+    router.push('/before')
 }
-
-// 设置轮询定时器，每5秒获取一次最新数据
-let pollingInterval = null
 
 onMounted(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
     // 组件挂载后调用API获取数据
     getArtworks()
-    
-    pollingInterval = setInterval(() => {
-        getArtworks()
-    }, 5000)
-})
-
-// 组件卸载时清除定时器
-onUnmounted(() => {
-    if (pollingInterval) {
-        clearInterval(pollingInterval)
-        pollingInterval = null
-    }
 })
 </script>
 
@@ -182,9 +143,9 @@ onUnmounted(() => {
         </template>
 
         <!-- 藏品列表内容 -->
-        <template #items="{ items }">
+        <template #items>
             <ProductCard 
-                v-for="item in items" 
+                v-for="item in artworks" 
                 :key="item.id" 
                 :item="item" 
                 type="calligraphies"

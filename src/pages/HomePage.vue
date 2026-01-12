@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { getCollectionItems } from '../services/api'
+import { getCollectionItems, getImageUrl } from '../services/api'
 
 const router = useRouter()
 
@@ -47,24 +47,10 @@ const collections = ref([
 
 // Navigate to detail page
 const goToDetail = (id) => {
-    router.push(`/${id}`)
-}
-
-// 获取各类藏品的代表性作品
-const loadFeaturedItems = async () => {
-    try {
-        // 这里可以根据需要加载各类藏品的代表性作品
-        // 例如：const ceramics = await getCollectionItems('ceramics')
-        // 然后更新collections中的数据
-    } catch (error) {
-        console.error('加载藏品数据失败:', error)
-    }
+    router.push(`/before/${id}`)
 }
 
 onMounted(() => {
-    // 加载藏品数据
-    loadFeaturedItems()
-    
     // Scroll reveal animation setup
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
@@ -96,10 +82,10 @@ onMounted(() => {
 
                         <!-- Desktop Nav -->
                         <div class="hidden md:flex items-center gap-8">
-                            <router-link to="/" class="text-sm font-medium tracking-wide text-stone-300 hover:text-gold-400 transition-colors duration-300">珍品收藏</router-link>
-                            <router-link to="/story" class="text-sm font-medium tracking-wide text-stone-300 hover:text-gold-400 transition-colors duration-300">品牌故事</router-link>
-                            <router-link to="/services" class="text-sm font-medium tracking-wide text-stone-300 hover:text-gold-400 transition-colors duration-300">服务体系</router-link>
-                            <router-link to="/contact" class="text-sm font-medium tracking-wide text-stone-300 hover:text-gold-400 transition-colors duration-300">联系我们</router-link>
+                            <router-link to="/before" class="text-sm font-medium tracking-wide text-stone-300 hover:text-gold-400 transition-colors duration-300">珍品收藏</router-link>
+                            <router-link to="/before/story" class="text-sm font-medium tracking-wide text-stone-300 hover:text-gold-400 transition-colors duration-300">品牌故事</router-link>
+                            <router-link to="/before/services" class="text-sm font-medium tracking-wide text-stone-300 hover:text-gold-400 transition-colors duration-300">服务体系</router-link>
+                            <router-link to="/before/contact" class="text-sm font-medium tracking-wide text-stone-300 hover:text-gold-400 transition-colors duration-300">联系我们</router-link>
                         </div>
 
                         <!-- CTA -->
@@ -413,10 +399,10 @@ onMounted(() => {
                     <div>
                         <h4 class="font-serif font-semibold text-stone-50 mb-4">关于我们</h4>
                         <ul class="space-y-3">
-                            <li><router-link to="/story" class="text-stone-500 hover:text-gold-400 text-sm transition-colors duration-300 cursor-pointer">品牌故事</router-link></li>
+                            <li><router-link to="/before/story" class="text-stone-500 hover:text-gold-400 text-sm transition-colors duration-300 cursor-pointer">品牌故事</router-link></li>
                             <li><a href="#" class="text-stone-500 hover:text-gold-400 text-sm transition-colors duration-300">专家团队</a></li>
                             <li><a href="#" class="text-stone-500 hover:text-gold-400 text-sm transition-colors duration-300">服务承诺</a></li>
-                            <li><router-link to="/contact" class="text-stone-500 hover:text-gold-400 text-sm transition-colors duration-300 cursor-pointer">联系我们</router-link></li>
+                            <li><router-link to="/before/contact" class="text-stone-500 hover:text-gold-400 text-sm transition-colors duration-300 cursor-pointer">联系我们</router-link></li>
                         </ul>
                     </div>
 

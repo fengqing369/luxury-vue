@@ -23,39 +23,15 @@ const getJades = async () => {
     try {
         // 调用后端API获取高古玉数据
         const data = await getCollectionItems('jades')
+        
         // 按id字段排序，确保图片按顺序显示
-        jades.value = (data || []).sort((a, b) => a.id - b.id)
+        jades.value = data.sort((a, b) => a.id - b.id)
     } catch (errorMsg) {
         console.error('获取高古玉列表失败:', errorMsg)
         // 设置错误信息
         error.value = `获取数据失败：${errorMsg.message}`
-        // 如果API请求失败，使用mock数据作为备用
-        jades.value = [
-            {
-                id: 1,
-                name: '商代玉龙纹璜',
-                dynasty: '商代',
-                year: '公元前1600-1046年',
-                description: '此玉璜呈半圆形，双面雕饰龙纹，龙身卷曲，龙口张开，形态威猛。玉质温润，沁色自然，是商代玉器的典型代表。',
-                size: '长12cm 宽3.5cm',
-                provenance: '安阳殷墟出土',
-                price: '¥ 3,800,000',
-                featured: true,
-                imageGradient: 'from-emerald-900/50 to-teal-900/50'
-            },
-            {
-                id: 2,
-                name: '汉白玉蝉',
-                dynasty: '汉代',
-                year: '公元前206-公元220年',
-                description: '汉玉蝉造型简练，线条流畅，所谓"汉八刀"工艺，寥寥数刀，神韵俱现。此件玉蝉玉质洁白，刀法犀利，为汉代玉蝉精品。',
-                size: '长6.5cm',
-                provenance: '传世旧藏',
-                price: '¥ 680,000',
-                featured: false,
-                imageGradient: 'from-stone-200/40 to-stone-300/40'
-            }
-        ]
+        // 清空数据列表
+        jades.value = []
     } finally {
         loading.value = false
     }
@@ -63,28 +39,13 @@ const getJades = async () => {
 
 // 返回首页
 const goBack = () => {
-    router.push('/')
+    router.push('/before')
 }
-
-// 设置轮询定时器，每5秒获取一次最新数据
-let pollingInterval = null
 
 onMounted(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
     // 组件挂载后调用API获取数据
     getJades()
-    
-    pollingInterval = setInterval(() => {
-        getJades()
-    }, 5000)
-})
-
-// 组件卸载时清除定时器
-onUnmounted(() => {
-    if (pollingInterval) {
-        clearInterval(pollingInterval)
-        pollingInterval = null
-    }
 })
 </script>
 
@@ -179,9 +140,9 @@ onUnmounted(() => {
         </template>
 
         <!-- 藏品列表内容 -->
-        <template #items="{ items }">
+        <template #items>
             <ProductCard 
-                v-for="item in items" 
+                v-for="item in jades" 
                 :key="item.id" 
                 :item="item" 
                 type="jades"
