@@ -18,6 +18,12 @@ export default defineConfig({
         target: 'http://localhost:3003',
         changeOrigin: true,
         rewrite: (path) => path
+      },
+      // 添加uploads代理，将/uploads请求转发到后端服务
+      '/uploads': {
+        target: 'http://localhost:3003',
+        changeOrigin: true,
+        rewrite: (path) => path
       }
     }
   }

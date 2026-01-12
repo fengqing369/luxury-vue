@@ -1,13 +1,14 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { getCollectionItems } from '../services/api'
 
 const router = useRouter()
 
 // Antique collections data
 const collections = ref([
     {
-        id: 'ceramic',
+        id: 'ceramics',
         name: '高古瓷',
         nameEn: 'Ancient Ceramics',
         description: '唐宋元明清各朝代精美瓷器，凝聚千年匠心',
@@ -16,7 +17,7 @@ const collections = ref([
         imageGradient: 'from-amber-900/40 to-orange-900/40'
     },
     {
-        id: 'jade',
+        id: 'jades',
         name: '高古玉',
         nameEn: 'Ancient Jade',
         description: '商周汉唐玉器，温润如脂，传世之宝',
@@ -25,7 +26,7 @@ const collections = ref([
         imageGradient: 'from-emerald-900/40 to-teal-900/40'
     },
     {
-        id: 'bronze',
+        id: 'bronzes',
         name: '青铜器',
         nameEn: 'Bronze Ware',
         description: '商周青铜礼器，铭文珍贵，历史见证',
@@ -34,7 +35,7 @@ const collections = ref([
         imageGradient: 'from-cyan-900/40 to-blue-900/40'
     },
     {
-        id: 'calligraphy',
+        id: 'calligraphies',
         name: '古字画',
         nameEn: 'Ancient Calligraphy',
         description: '宋元明清名家真迹，笔墨丹青，艺术瑰宝',
@@ -49,7 +50,21 @@ const goToDetail = (id) => {
     router.push(`/${id}`)
 }
 
+// 获取各类藏品的代表性作品
+const loadFeaturedItems = async () => {
+    try {
+        // 这里可以根据需要加载各类藏品的代表性作品
+        // 例如：const ceramics = await getCollectionItems('ceramics')
+        // 然后更新collections中的数据
+    } catch (error) {
+        console.error('加载藏品数据失败:', error)
+    }
+}
+
 onMounted(() => {
+    // 加载藏品数据
+    loadFeaturedItems()
+    
     // Scroll reveal animation setup
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
@@ -81,10 +96,10 @@ onMounted(() => {
 
                         <!-- Desktop Nav -->
                         <div class="hidden md:flex items-center gap-8">
-                            <a href="#collection" class="text-sm font-medium tracking-wide text-stone-300 hover:text-gold-400 transition-colors duration-300">珍品收藏</a>
-                            <a href="#story" class="text-sm font-medium tracking-wide text-stone-300 hover:text-gold-400 transition-colors duration-300">品牌故事</a>
-                            <a href="#services" class="text-sm font-medium tracking-wide text-stone-300 hover:text-gold-400 transition-colors duration-300">服务体系</a>
-                            <a href="#contact" class="text-sm font-medium tracking-wide text-stone-300 hover:text-gold-400 transition-colors duration-300">联系我们</a>
+                            <router-link to="/" class="text-sm font-medium tracking-wide text-stone-300 hover:text-gold-400 transition-colors duration-300">珍品收藏</router-link>
+                            <router-link to="/story" class="text-sm font-medium tracking-wide text-stone-300 hover:text-gold-400 transition-colors duration-300">品牌故事</router-link>
+                            <router-link to="/services" class="text-sm font-medium tracking-wide text-stone-300 hover:text-gold-400 transition-colors duration-300">服务体系</router-link>
+                            <router-link to="/contact" class="text-sm font-medium tracking-wide text-stone-300 hover:text-gold-400 transition-colors duration-300">联系我们</router-link>
                         </div>
 
                         <!-- CTA -->
@@ -127,7 +142,7 @@ onMounted(() => {
 
                     <!-- CTA Buttons -->
                     <div class="reveal flex flex-col sm:flex-row items-center justify-center gap-4" style="transition-delay: 0.3s;">
-                        <button @click="router.push('/ceramic')" class="group bg-gradient-to-r from-gold-600 to-gold-500 hover:from-gold-700 hover:to-gold-600 text-stone-950 font-semibold px-10 py-4 rounded-full transition-all duration-300 cursor-pointer shadow-xl shadow-gold-500/30 flex items-center gap-3">
+                        <button @click="router.push('/ceramics')" class="group bg-gradient-to-r from-gold-600 to-gold-500 hover:from-gold-700 hover:to-gold-600 text-stone-950 font-semibold px-10 py-4 rounded-full transition-all duration-300 cursor-pointer shadow-xl shadow-gold-500/30 flex items-center gap-3">
                             <span>浏览珍品</span>
                             <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
@@ -387,10 +402,10 @@ onMounted(() => {
                     <div>
                         <h4 class="font-serif font-semibold text-stone-50 mb-4">收藏门类</h4>
                         <ul class="space-y-3">
-                            <li><a href="#" @click.prevent="goToDetail('ceramic')" class="text-stone-500 hover:text-gold-400 text-sm transition-colors duration-300 cursor-pointer">高古瓷器</a></li>
-                            <li><a href="#" @click.prevent="goToDetail('jade')" class="text-stone-500 hover:text-gold-400 text-sm transition-colors duration-300 cursor-pointer">高古玉器</a></li>
-                            <li><a href="#" @click.prevent="goToDetail('bronze')" class="text-stone-500 hover:text-gold-400 text-sm transition-colors duration-300 cursor-pointer">青铜礼器</a></li>
-                            <li><a href="#" @click.prevent="goToDetail('calligraphy')" class="text-stone-500 hover:text-gold-400 text-sm transition-colors duration-300 cursor-pointer">古字画</a></li>
+                            <li><a href="#" @click.prevent="goToDetail('ceramics')" class="text-stone-500 hover:text-gold-400 text-sm transition-colors duration-300 cursor-pointer">高古瓷器</a></li>
+                            <li><a href="#" @click.prevent="goToDetail('jades')" class="text-stone-500 hover:text-gold-400 text-sm transition-colors duration-300 cursor-pointer">高古玉器</a></li>
+                            <li><a href="#" @click.prevent="goToDetail('bronzes')" class="text-stone-500 hover:text-gold-400 text-sm transition-colors duration-300 cursor-pointer">青铜礼器</a></li>
+                            <li><a href="#" @click.prevent="goToDetail('calligraphies')" class="text-stone-500 hover:text-gold-400 text-sm transition-colors duration-300 cursor-pointer">古字画</a></li>
                         </ul>
                     </div>
 
@@ -398,10 +413,10 @@ onMounted(() => {
                     <div>
                         <h4 class="font-serif font-semibold text-stone-50 mb-4">关于我们</h4>
                         <ul class="space-y-3">
-                            <li><a href="#" class="text-stone-500 hover:text-gold-400 text-sm transition-colors duration-300">品牌故事</a></li>
+                            <li><router-link to="/story" class="text-stone-500 hover:text-gold-400 text-sm transition-colors duration-300 cursor-pointer">品牌故事</router-link></li>
                             <li><a href="#" class="text-stone-500 hover:text-gold-400 text-sm transition-colors duration-300">专家团队</a></li>
                             <li><a href="#" class="text-stone-500 hover:text-gold-400 text-sm transition-colors duration-300">服务承诺</a></li>
-                            <li><a href="#" class="text-stone-500 hover:text-gold-400 text-sm transition-colors duration-300">联系我们</a></li>
+                            <li><router-link to="/contact" class="text-stone-500 hover:text-gold-400 text-sm transition-colors duration-300 cursor-pointer">联系我们</router-link></li>
                         </ul>
                     </div>
 
