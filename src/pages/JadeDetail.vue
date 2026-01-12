@@ -24,7 +24,7 @@ const getJades = async () => {
         // 调用后端API获取高古玉数据
         const data = await getCollectionItems('jades')
         
-        // 按id字段排序，确保图片按顺序显示
+        // 按id字段从小到大排序，确保图片按顺序显示
         jades.value = data.sort((a, b) => a.id - b.id)
     } catch (errorMsg) {
         console.error('获取高古玉列表失败:', errorMsg)

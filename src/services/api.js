@@ -33,7 +33,19 @@ apiClient.interceptors.response.use(
   response => {
     // 统一处理响应数据
     const result = response.data
-    return result.success ? result.data : null
+    
+    // 处理多种响应格式：
+    // 1. 如果是数组或对象，直接返回（如直接返回数据的API）
+    if (Array.isArray(result) || (typeof result === 'object' && result !== null)) {
+      // 2. 如果有success字段，按字段值处理
+      if (result.success !== undefined) {
+        return result.success ? result.data : null
+      }
+      // 3. 没有success字段，直接返回数据
+      return result
+    }
+    // 4. 其他类型数据，直接返回
+    return result
   },
   error => {
     console.error('API请求失败:', error)
@@ -226,9 +238,27 @@ export async function getCollectionItems(type) {
  * @returns {Promise<Object>} - 藏品详情
  */
 export async function getCollectionItemDetail(type, id) {
-  // 尝试调用后端API获取数据，失败则抛出错误
-  const data = await apiClient.get(`${type}/${id}`)
-  return data || null
+  try {
+    // 尝试调用后端API获取数据
+    const data = await apiClient.get(`${type}/${id}`)
+    if (data) {
+      return data
+    }
+    throw new Error('API返回空数据')
+  } catch (error) {
+    console.error(`获取${type}详情失败，${USE_MOCK_DATA_ON_FAILURE ? '使用mock数据' : '抛出错误'}`, error)
+    
+    // 如果配置了使用mock数据，且当前是开发环境，则返回mock数据
+    if (USE_MOCK_DATA_ON_FAILURE) {
+      // 从mock数据中查找对应ID的藏品
+      const items = mockData[type] || []
+      const item = items.find(item => item.id === parseInt(id))
+      return item || null
+    }
+    
+    // 否则抛出错误
+    throw error
+  }
 }
 
 /**
@@ -247,11 +277,15 @@ export function getImageUrl(imagePath) {
   }
   // 确保路径格式正确，避免重复的斜杠
   let url = imagePath
-  // 如果路径不以/uploads开头，添加/uploads前缀
-  if (!url.startsWith('/uploads')) {
-    url = `/uploads${url.startsWith('/') ? '' : '/'}` + url
+  // 直接使用完整路径，兼容后台返回的格式
+  // 例如：/uploads/xxx.jpg 或 uploads/xxx.jpg
+  if (!url.startsWith('/')) {
+    url = '/' + url
   }
-  // 添加基础URL
+  if (!url.startsWith('/uploads')) {
+    url = '/uploads' + url
+  }
+  // 添加基础URL，确保图片能够正确加载
   return IMAGE_BASE_URL + url.replace(/^\//, '')
 }
 

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, onBeforeUnmount } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { getCollectionItemDetail, getImageUrl } from '../services/api'
 
@@ -17,10 +17,108 @@ const error = ref('')
 // 藏品详情数据
 const item = ref(null)
 
+// 图片放大相关状态
+const imageViewerVisible = ref(false)
+const currentImageUrl = ref('')
+const showZoomButton = ref(false)
+const scale = ref(1)
+const rotate = ref(0)
+const isDragging = ref(false)
+const startX = ref(0)
+const startY = ref(0)
+const offsetX = ref(0)
+const offsetY = ref(0)
+
 // 返回上一页
 const goBack = () => {
     router.back()
 }
+
+// 处理图片预览
+const handleImagePreview = (imagePath) => {
+    if (imagePath) {
+        currentImageUrl.value = getImageUrl(imagePath)
+        // 重置状态
+        scale.value = 1
+        rotate.value = 0
+        offsetX.value = 0
+        offsetY.value = 0
+        imageViewerVisible.value = true
+    }
+}
+
+// 关闭预览
+const closeImageViewer = () => {
+    imageViewerVisible.value = false
+}
+
+// 处理缩放
+const handleZoom = (e) => {
+    e.preventDefault()
+    // 计算缩放方向和步长
+    const delta = e.deltaY > 0 ? -0.1 : 0.1
+    // 限制缩放范围在0.5到5倍之间
+    scale.value = Math.max(0.5, Math.min(5, scale.value + delta))
+}
+
+// 重置图片状态
+const resetImage = () => {
+    scale.value = 1
+    rotate.value = 0
+    offsetX.value = 0
+    offsetY.value = 0
+}
+
+// 放大图片
+const zoomIn = () => {
+    scale.value = Math.min(5, scale.value + 0.1)
+}
+
+// 缩小图片
+const zoomOut = () => {
+    scale.value = Math.max(0.5, scale.value - 0.1)
+}
+
+// 旋转图片
+const rotateImage = () => {
+    rotate.value = (rotate.value + 90) % 360
+}
+
+// 处理拖拽开始
+const handleDragStart = (e) => {
+    if (scale.value > 1) {
+        isDragging.value = true
+        startX.value = e.clientX
+        startY.value = e.clientY
+    }
+}
+
+// 处理拖拽移动
+const handleDragMove = (e) => {
+    if (isDragging.value) {
+        offsetX.value += e.clientX - startX.value
+        offsetY.value += e.clientY - startY.value
+        startX.value = e.clientX
+        startY.value = e.clientY
+    }
+}
+
+// 处理拖拽结束
+const handleDragEnd = () => {
+    isDragging.value = false
+}
+
+// 添加事件监听器
+onMounted(() => {
+    window.addEventListener('mousemove', handleDragMove)
+    window.addEventListener('mouseup', handleDragEnd)
+})
+
+// 移除事件监听器
+onBeforeUnmount(() => {
+    window.removeEventListener('mousemove', handleDragMove)
+    window.removeEventListener('mouseup', handleDragEnd)
+})
 
 /**
  * 从后端API获取单个藏品详情
@@ -106,13 +204,19 @@ onMounted(() => {
                     </div>
 
                     <!-- 藏品图片 -->
-                    <div class="aspect-[4/3] bg-gradient-to-br relative overflow-hidden rounded-2xl mb-8" :class="item.imageGradient">
+                    <div 
+                        class="aspect-[4/3] bg-gradient-to-br relative overflow-hidden rounded-2xl mb-8 cursor-pointer group" 
+                        :class="item.imageGradient"
+                        @mouseenter="showZoomButton = true"
+                        @mouseleave="showZoomButton = false"
+                        @click="handleImagePreview(item.image)"
+                    >
                         <div class="absolute inset-0 flex items-center justify-center">
                             <img 
                                 v-if="item.image" 
                                 :src="getImageUrl(item.image)" 
                                 :alt="item.name" 
-                                class="w-full h-full object-contain"
+                                class="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105"
                             />
                             <svg 
                                 v-else 
@@ -127,6 +231,99 @@ onMounted(() => {
                         <div v-if="item.featured" class="absolute top-4 right-4 bg-gold-600 text-stone-950 text-xs font-bold px-3 py-1 rounded-full">
                             镇馆之宝
                         </div>
+                        <!-- 放大按钮 -->
+                        <div 
+                            v-if="item.image" 
+                            class="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                        >
+                            <button 
+                                class="bg-gold-600 text-stone-950 w-12 h-12 rounded-full flex items-center justify-center hover:bg-gold-500 transition-colors shadow-lg"
+                                title="点击放大图片"
+                            >
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- 图片预览组件 - 自定义实现，与后台编辑藏品功能一致 -->
+                    <div v-if="imageViewerVisible" class="fixed inset-0 bg-black/95 z-9999 flex items-center justify-center p-4">
+                      <div class="relative w-full h-full max-w-7xl flex flex-col">
+                        <!-- 顶部控制栏 -->
+                        <div class="absolute top-0 right-0 z-100 p-4 flex gap-2">
+                          <button 
+                            @click="closeImageViewer"
+                            class="w-10 h-10 bg-red-600 hover:bg-red-500 rounded-full flex items-center justify-center text-white transition-colors"
+                            title="关闭"
+                          >
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                          </button>
+                        </div>
+                        
+                        <!-- 图片显示区域 -->
+                        <div class="flex-1 flex items-center justify-center overflow-hidden">
+                          <img 
+                            :src="currentImageUrl" 
+                            :alt="item.name" 
+                            class="transition-transform duration-200 cursor-move"
+                            @wheel="handleZoom"
+                            @mousedown="handleDragStart"
+                            @mouseup="handleDragEnd"
+                            @mouseleave="handleDragEnd"
+                            :style="{
+                              transform: `translate(${offsetX}px, ${offsetY}px) scale(${scale}) rotate(${rotate}deg)`,
+                              cursor: scale > 1 ? 'grab' : 'default'
+                            }"
+                          />
+                        </div>
+                        
+                        <!-- 底部控制栏 -->
+                        <div class="absolute bottom-0 left-0 right-0 z-100 bg-black/70 backdrop-blur-sm p-4 flex justify-center gap-2">
+                          <button 
+                            @click="zoomOut"
+                            class="w-10 h-10 bg-stone-800 hover:bg-stone-700 rounded-full flex items-center justify-center text-white transition-colors"
+                            title="缩小"
+                          >
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                          </button>
+                          <button 
+                            @click="resetImage"
+                            class="w-10 h-10 bg-stone-800 hover:bg-stone-700 rounded-full flex items-center justify-center text-white transition-colors"
+                            title="重置"
+                          >
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                            </svg>
+                          </button>
+                          <button 
+                            @click="zoomIn"
+                            class="w-10 h-10 bg-stone-800 hover:bg-stone-700 rounded-full flex items-center justify-center text-white transition-colors"
+                            title="放大"
+                          >
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                          </button>
+                          <button 
+                            @click="rotateImage"
+                            class="w-10 h-10 bg-stone-800 hover:bg-stone-700 rounded-full flex items-center justify-center text-white transition-colors"
+                            title="旋转"
+                          >
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                            </svg>
+                          </button>
+                          <div class="flex items-center text-white text-sm bg-stone-800 px-3 py-1 rounded-full">
+                            缩放: {{ Math.round(scale * 100) }}%
+                          </div>
+                        </div>
+                      </div>
                     </div>
 
                     <!-- 藏品基本信息 -->

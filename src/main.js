@@ -12,6 +12,7 @@ import ItemDetail from './pages/ItemDetail.vue'
 import StoryPage from './pages/StoryPage.vue'
 import ServicesPage from './pages/ServicesPage.vue'
 import ContactPage from './pages/ContactPage.vue'
+import AdminPage from './pages/AdminPage.vue'
 
 // Routes
 const routes = [
@@ -30,8 +31,12 @@ const routes = [
     { path: '/before/story', component: StoryPage },
     { path: '/before/services', component: ServicesPage },
     { path: '/before/contact', component: ContactPage },
+    // 管理员页面路由
+    { path: '/before/admin', component: AdminPage },
     // 详情页路由
     { path: '/before/:type/:id', component: ItemDetail },
+    // 兼容旧路由（没有before前缀的详情页路由）
+    { path: '/:type/:id', component: ItemDetail },
     // 重定向根路径到before前缀
     { path: '/', redirect: '/before' },
 ]
